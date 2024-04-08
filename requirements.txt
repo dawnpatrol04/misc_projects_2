@@ -1,0 +1,15 @@
+python-dotenv
+langchain
+slack-sdk 
+slack-bolt 
+langchain_google_vertexai
+
+watchdog
+
+
+# jira stuff
+atlassian-python-api
+langchain
+python-dotenv
+langchain-community
+langchain-openai

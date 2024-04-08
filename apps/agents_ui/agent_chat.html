@@ -1,0 +1,274 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hackathon - VCL Agents</title>
+<style>
+  body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f2f2f2;
+  }
+  header, footer {
+    background-color: #000;
+    color: #fff;
+    padding: 10px 20px;
+    text-align: center;
+  }
+  .chat-bot-selection {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    padding: 20px;
+    background-color: #fff;
+    border-bottom: 2px solid #000;
+  }
+  .chat-bot {
+    margin: 10px;
+    text-align: center;
+  }
+  .chat-bot img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid #000;
+    cursor: pointer;
+  }
+  .chat-bot p {
+    color: #000;
+  }
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+  }
+  .chat-history {
+    width: 80%;
+    height: 300px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+    overflow-y: auto;
+    padding: 10px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .chat-controls {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    width: 80%;
+    margin-bottom: 20px;
+  }
+  .chat-input {
+    flex-grow: 1;
+    padding: 10px;
+    margin-right: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+  }
+  .send-btn, .clear-btn {
+    padding: 10px;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .send-btn {
+    background-color: #000;
+  }
+  .clear-btn {
+    background-color: rgb(255, 0, 0);
+    margin-left: 10px; /* Ensure space between buttons */
+  }
+  .chat-message {
+    max-width: 80%;
+    margin: 10px;
+    padding: 10px;
+    border-radius: 18px;
+    position: relative;
+    color: black; /* Text color */
+    border: 1px solid #ccc; /* Add border */
+    background-color: #e5e5ea; /* Background color for all messages */
+  }
+  .chat-message.user {
+    background-color: #ff0000c5;
+    color: white;
+    align-self: flex-end;
+  }
+  /* Agent message bubble was similar to user but align to the start */
+  .chat-message.agent {
+    align-self: flex-start;
+  }
+  /* Timestamp was removed as per previous instructions */
+</style>
+
+
+</head>
+<body>
+
+<header>
+  <p>Hackathon - VLC Agents</p>
+</header>
+
+<div class="chat-bot-selection">
+
+  <div class="chat-bot-selection">
+    <!-- Network -->
+    <div class="chat-bot" onclick="openChat('Network')">
+      <img src="network_bot.jpg" alt="Network">
+      <p>Network</p>
+    </div>
+    
+    <!-- Line of Business VCG, VBG -->
+    <div class="chat-bot" onclick="openChat('Line of Business')">
+      <img src="line_business_bot.jpg" alt="Line of Business">
+      <p>Line of Business VCG, VBG</p>
+    </div>
+    
+    <!-- Operations -->
+    <div class="chat-bot" onclick="openChat('Operations')">
+      <img src="operations_bot.jpg" alt="Operations">
+      <p>Operations</p>
+    </div>
+    
+    <!-- Marketing -->
+    <div class="chat-bot" onclick="openChat('Marketing')">
+      <img src="marketing_bot.jpg" alt="Marketing">
+      <p>Marketing</p>
+    </div>
+    
+    <!-- Human Resource -->
+    <div class="chat-bot" onclick="openChat('Human Resource')">
+      <img src="hr_bot.jpg" alt="Human Resource">
+      <p>Human Resource</p>
+    </div>
+    
+    <!-- Finance -->
+    <div class="chat-bot" onclick="openChat('Finance')">
+      <img src="finance_bot.jpg" alt="Finance">
+      <p>Finance</p>
+    </div>
+  </div>
+</div>
+
+<div class="chat-container">
+  <div class="chat-history" id="chatHistory">
+    <!-- Chat messages will go here -->
+  </div>
+  <div class="chat-controls">
+    <input type="text" class="chat-input" id="chatInput" placeholder="Type your message here...">
+    <button class="send-btn" onclick="sendMessage()">Send</button>
+    <button class="clear-btn" onclick="clearChat()">Clear</button>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2024 Hackathon - Parsons. All rights reserved.</p>
+</footer>
+
+
+
+
+
+
+
+
+
+<script>
+  var currentWebSocket = null;
+
+  function openChat(department) {
+    if (currentWebSocket) {
+      currentWebSocket.close();
+    }
+
+    const departmentToWsPath = {
+      'Network': 'network',
+      'Line of Business': 'line_of_business',
+      'Operations': 'operations',
+      'Marketing': 'marketing',
+      'Human Resource': 'hr',
+      'Finance': 'finance'
+    };
+
+    currentWebSocket = new WebSocket(`ws://localhost:9876/ws/${departmentToWsPath[department]}`);
+
+    currentWebSocket.onopen = function(event) {
+      console.log('WebSocket Open', event);
+      var chatHistory = document.querySelector('.chat-history');
+      chatHistory.innerHTML = '<p>Connected to ' + department + '.</p>';
+    };
+
+    currentWebSocket.onmessage = function(event) {
+      try {
+        // Try to parse the event data as JSON
+        var data = JSON.parse(event.data);
+        // Check if the parsed data has a 'text' property
+        if (data && data.text) {
+          appendMessage(data.text, 'agent');
+        }
+      } catch (e) {
+        // If an error occurs, assume the message is plain text
+        appendMessage(event.data, 'agent');
+      }
+    };
+
+    currentWebSocket.onclose = function(event) {
+      console.log('WebSocket Closed', event);
+    };
+
+    currentWebSocket.onerror = function(event) {
+      console.error('WebSocket Error', event);
+    };
+  }
+
+  function sendMessage() {
+    var input = document.getElementById('chatInput');
+    var message = input.value;
+    if (currentWebSocket && message) {
+      currentWebSocket.send(message);
+      appendMessage(message, 'user');
+      input.value = '';
+    }
+  }
+
+  function appendMessage(message, sender) {
+    var chatHistory = document.getElementById('chatHistory');
+    var messageBubble = document.createElement('div');
+    messageBubble.className = 'chat-message ' + sender;
+    messageBubble.textContent = message;
+
+    chatHistory.appendChild(messageBubble);
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+  }
+
+  function clearChat() {
+    var chatHistory = document.getElementById('chatHistory');
+    chatHistory.innerHTML = '';
+  }
+
+  document.querySelector('.send-btn').addEventListener('click', sendMessage);
+  document.querySelector('.chat-input').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+      sendMessage();
+    }
+  });
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>
