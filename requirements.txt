@@ -13,3 +13,8 @@ langchain
 python-dotenv
 langchain-community
 langchain-openai
+
+# pandas data agent
+pandas
+langchain-experimental
+tabulate
