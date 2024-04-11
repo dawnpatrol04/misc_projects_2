@@ -159,3 +159,7 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 gen-ai-testing-412918-09b97739a5c9.json
+agents/.DS_Store
+agents.zip
+*/.DS_Store
+agents/.DS_Store
