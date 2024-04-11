@@ -12,7 +12,6 @@ import matplotlib.pyplot as plt
 
 
 load_dotenv()
-# llm = ChatOpenAI(model="gpt-4-turbo", temperature=0)
 llm = ChatVertexAI( model_name="gemini-pro", temperature=0, convert_system_message_to_human=True)
 
 def csv_tool(filename : str):

@@ -1,6 +1,7 @@
 import pandas as pd
 import json
 import matplotlib.pyplot as plt
+from langchain_openai import OpenAI
 from langchain_experimental.agents import create_pandas_dataframe_agent
 from langchain_google_vertexai import  ChatVertexAI
 import pandas as pd
@@ -10,8 +11,7 @@ import matplotlib.pyplot as plt
 
 
 load_dotenv()
-
-llm = ChatVertexAI(model_name="gemini-pro", temperature=0, top_p=0, project='vz-nonit-np-jaov-dev-fpasdo-0', convert_system_message_to_human=True )
+llm = ChatVertexAI( model_name="gemini-pro", temperature=0, convert_system_message_to_human=True)
 
 def csv_tool(filename : str):
     df = pd.read_csv(filename)
@@ -113,7 +113,7 @@ if __name__ == "__main__":
     success = False
 
     # Example usage with hardcoded values
-    csv_file = '/Users/V721215/Code/hackathon_prez/Salck_bot/agents/data_viz/5G_Data_Sample.csv'  # Update this with your CSV file path
+    csv_file = '/Users/mikeparsons/Documents/code/misc_projects_2/agents/data_viz/5G_Data_Sample.csv'  # Update this with your CSV file path
     query = ' bar chart: Bandwidth Capacity (Gbps) by Cell Tower ID'  # Update this with your desired query
 
     while attempts < max_attempts and not success:
